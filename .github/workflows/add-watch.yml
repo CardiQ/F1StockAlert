@@ -1,0 +1,45 @@
+name: add-watch
+
+on:
+  workflow_dispatch:
+    inputs:
+      url:
+        description: Product page URL
+        required: true
+      option:
+        description: Option to watch, as shown on the page (e.g. XS)
+        required: true
+      email:
+        description: Email address to notify
+        required: true
+
+concurrency:
+  group: watches
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  add:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - name: Add watch
+        env:
+          URL: ${{ inputs.url }}
+          OPTION: ${{ inputs.option }}
+          EMAIL: ${{ inputs.email }}
+          RESTOCK_PROFILE_DIR: ${{ runner.temp }}/chrome-profile
+        # If the store blocks the runner, the watch is still added unverified.
+        run: python watch.py add "$URL" --option "$OPTION" --email "$EMAIL" || python watch.py add "$URL" --option "$OPTION" --email "$EMAIL" --no-verify
+      - run: |
+          git config user.name "restock-watch[bot]"
+          git config user.email "restock-watch@users.noreply.github.com"
+          git add watches.json
+          git diff --cached --quiet || (git commit -m "Add watch" && git push)
