@@ -1,0 +1,8 @@
+services:
+  restock-watch:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - ./data:/data
+    shm_size: 1gb   # Chrome needs more than Docker's 64 MB default /dev/shm

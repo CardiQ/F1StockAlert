@@ -3,3 +3,5 @@ __pycache__/
 *.pyc
 .venv/
 watches.json.tmp
+*.lock
+data/

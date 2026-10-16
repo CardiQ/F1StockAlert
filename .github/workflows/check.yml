@@ -2,6 +2,7 @@ name: check
 
 on:
   schedule:
+    # Each run only checks watches that are due (see each watch's --every).
     - cron: "*/30 * * * *"
   workflow_dispatch:
 

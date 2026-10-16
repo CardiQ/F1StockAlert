@@ -24,8 +24,12 @@ class Browser:
     def __enter__(self):
         self._pw = sync_playwright().start()
         headless = os.environ.get("RESTOCK_HEADLESS", "1") != "0"
+        # "chrome" = installed Google Chrome (gets past bot protection far more often than
+        # the bundled Chromium); set RESTOCK_BROWSER_CHANNEL=chromium to use the bundled one.
+        channel = os.environ.get("RESTOCK_BROWSER_CHANNEL", "chrome")
         self.ctx = self._pw.chromium.launch_persistent_context(
-            PROFILE_DIR, channel="chrome", headless=headless, no_viewport=True
+            PROFILE_DIR, channel=channel, headless=headless, no_viewport=True,
+            args=["--no-sandbox"] if os.geteuid() == 0 else [],   # root in Docker
         )
         return self
 

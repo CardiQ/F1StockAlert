@@ -12,6 +12,10 @@ on:
       email:
         description: Email address to notify
         required: true
+      every:
+        description: How often to check (30m, 6h, 1d, 1w)
+        required: true
+        default: 30m
 
 concurrency:
   group: watches
@@ -35,9 +39,10 @@ jobs:
           URL: ${{ inputs.url }}
           OPTION: ${{ inputs.option }}
           EMAIL: ${{ inputs.email }}
+          EVERY: ${{ inputs.every }}
           RESTOCK_PROFILE_DIR: ${{ runner.temp }}/chrome-profile
         # If the store blocks the runner, the watch is still added unverified.
-        run: python watch.py add "$URL" --option "$OPTION" --email "$EMAIL" || python watch.py add "$URL" --option "$OPTION" --email "$EMAIL" --no-verify
+        run: python watch.py add "$URL" --option "$OPTION" --email "$EMAIL" --every "$EVERY" || python watch.py add "$URL" --option "$OPTION" --email "$EMAIL" --every "$EVERY" --no-verify
       - run: |
           git config user.name "restock-watch[bot]"
           git config user.email "restock-watch@users.noreply.github.com"
